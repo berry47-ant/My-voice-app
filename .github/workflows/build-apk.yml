@@ -11,38 +11,22 @@ jobs:
 
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
-
-    - name: Install Cordova
-      run: npm install -g cordova
-
-    - name: Create Cordova Project
-      run: |
-        cordova create myApp com.example.myapp MyApp
-        cd myApp
-        cordova platform add android
-        rm -rf www/*
-        cp -r ../* www/ || true
+      uses: actions/checkout@v4
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Build Android APK
-      run: |
-        cd myApp
-        cordova build android --verbose
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew || true
+
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug --stacktrace || gradle assembleDebug
 
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: app-debug.apk
-        path: myApp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
-        
+        name: app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
